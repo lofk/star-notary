@@ -78,22 +78,41 @@ it('lets user2 buy a star and decreases its balance in ether', async() => {
 it('can add the star name and star symbol properly', async() => {
     // 1. create a Star with different tokenId
     //2. Call the name and symbol properties in your Smart Contract and compare with the name and symbol provided
+    let tokenId = 6;
+    let instance = await StarNotary.deployed();
+    await instance.createStar('Awesome Star!', tokenId, {from: accounts[3]})
+
+    assert.equal(await instance.name.call(), 'StarNotaryToken')
+    assert.equal(await instance.symbol.call(), 'SNT')
 });
 
 it('lets 2 users exchange stars', async() => {
     // 1. create 2 Stars with different tokenId
     // 2. Call the exchangeStars functions implemented in the Smart Contract
     // 3. Verify that the owners changed
+    let instance = await StarNotary.deployed();
+    await instance.createStar('Awesome Star 7', 7, {from: accounts[0]});
+    await instance.createStar('Awesome Star 8', 8, {from: accounts[1]});
+    await instance.exchangeStars(7, 8, {from: accounts[0]});
+    assert.equal(await instance.ownerOf.call(7), accounts[1]);
+    assert.equal(await instance.ownerOf.call(8), accounts[0]);
 });
 
 it('lets a user transfer a star', async() => {
     // 1. create a Star with different tokenId
     // 2. use the transferStar function implemented in the Smart Contract
     // 3. Verify the star owner changed.
+    let instance = await StarNotary.deployed();
+    await instance.createStar('test star 1', 9, {from: accounts[0]})
+    await instance.transferStar(accounts[1], 9, {from: accounts[0]})
+    assert.equal(await instance.ownerOf.call(9), accounts[1])
 });
 
 it('lookUptokenIdToStarInfo test', async() => {
     // 1. create a Star with different tokenId
     // 2. Call your method lookUptokenIdToStarInfo
     // 3. Verify if you Star name is the same
+    let instance = await StarNotary.deployed();
+    await instance.createStar('Awesome Star!', 10, {from: accounts[0]})
+    assert.equal(await instance.lookUptokenIdToStarInfo.call(10), 'Awesome Star!')
 });
